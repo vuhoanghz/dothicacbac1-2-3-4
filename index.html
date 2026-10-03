@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataViz Studio - Trung Tâm Đồ Thị Tương Tác Đa Dạng</title>
+  
+  <!-- Favicon icon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN fallback with inline SVG symbols -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- Local ECharts script (with CDN fallback) -->
+  <script src="libs/echarts.min.js"></script>
+  <script>
+    if (typeof echarts === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"><\/script>');
+    }
+  </script>
+</head>
+<body class="app-body">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <button id="sidebar-toggle-btn" class="icon-btn" title="Ẩn/Hiện Menu danh mục" aria-label="Toggle Sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DataViz <span class="gradient-text">Studio</span></span>
+          <span class="brand-subtitle">Interactive Graph & Data Hub</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Streaming & Dataset Quick Bar -->
+    <div class="header-center">
+      <div class="stream-control-pill" id="stream-control-pill">
+        <button id="live-stream-btn" class="pill-btn" title="Bắt đầu / Tạm dừng dòng dữ liệu thời gian thực">
+          <span class="status-dot"></span>
+          <span class="stream-text" id="stream-btn-text">Dữ liệu tĩnh</span>
+        </button>
+        <select id="stream-speed-select" class="pill-select" title="Tốc độ cập nhật">
+          <option value="2000">2.0 giây</option>
+          <option value="1000" selected>1.0 giây</option>
+          <option value="500">0.5 giây</option>
+        </select>
+      </div>
+
+      <div class="dataset-selector-wrapper">
+        <span class="select-label">Kịch bản:</span>
+        <select id="dataset-scenario-select" class="dropdown-select">
+          <option value="business">Kinh doanh & Tài chính</option>
+          <option value="tech">Công nghệ & Hạ tầng Cloud</option>
+          <option value="social">Mạng xã hội & Tương tác</option>
+          <option value="science">Khoa học & Khí hậu</option>
+        </select>
+      </div>
+    </div>
+
+      <!-- Link to Math Lab -->
+      <a href="math.html" class="action-btn" title="Khảo sát hàm số Toán học Bậc 1, 2, 3, 4" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15)); border-color: rgba(139, 92, 246, 0.4); color: #c084fc; text-decoration: none; font-weight: 600; gap: 6px;">
+        <span style="font-size: 1.05rem;">📐</span>
+        <span>Hàm Số Bậc 1-4</span>
+      </a>
+
+      <!-- Theme Switcher -->
+      <div class="theme-dropdown-wrapper">
+        <select id="theme-selector" class="dropdown-select theme-select">
+          <option value="dark">🌙 Chế độ Tối (Dark)</option>
+          <option value="light">☀️ Chế độ Sáng (Light)</option>
+          <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+          <option value="emerald">🌲 Emerald Forest</option>
+        </select>
+      </div>
+
+      <!-- Quick Export Menu -->
+      <div class="dropdown-btn-group">
+        <button id="export-dropdown-btn" class="action-btn" title="Xuất dữ liệu / Ảnh">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Xuất đồ thị</span>
+        </button>
+        <div id="export-menu" class="dropdown-menu">
+          <button class="dropdown-item" id="export-png-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Tải ảnh PNG độ nét cao
+          </button>
+          <button class="dropdown-item" id="export-svg-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Xuất mã SVG Vector
+          </button>
+          <button class="dropdown-item" id="export-json-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Tải dữ liệu JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Fullscreen Toggle -->
+      <button id="fullscreen-btn" class="icon-btn" title="Toàn màn hình">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+
+      <!-- Help / Guide Modal Button -->
+      <button id="help-btn" class="icon-btn" title="Hướng dẫn tương tác">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Layout -->
+  <div class="app-layout">
+    <!-- Left Navigation Sidebar -->
+    <aside id="app-sidebar" class="app-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">DANH MỤC ĐỒ THỊ</span>
+        <span class="badge" id="chart-count-badge">10 Dạng</span>
+      </div>
+
+      <nav class="chart-nav" id="chart-nav">
+        <!-- 1. Bar Chart -->
+        <button class="nav-item active" data-chart="bar">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Cột & Xếp Chồng</span>
+            <span class="nav-desc">Bar & Stacked Columns</span>
+          </div>
+          <span class="nav-badge">Phổ biến</span>
+        </button>
+
+        <!-- 2. Line & Area Chart -->
+        <button class="nav-item" data-chart="line">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Đường & Miền Đa Trục</span>
+            <span class="nav-desc">Line & Dual-Axis Area</span>
+          </div>
+        </button>
+
+        <!-- 3. Pie & Rose Chart -->
+        <button class="nav-item" data-chart="pie">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Tròn & Hoa Hồng Rose</span>
+            <span class="nav-desc">Donut & Nightingale</span>
+          </div>
+        </button>
+
+        <!-- 4. Scatter & Bubble Chart -->
+        <button class="nav-item" data-chart="scatter">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="18.5" cy="5.5" r=".5" fill="currentColor"/><circle cx="11.5" cy="11.5" r=".5" fill="currentColor"/><circle cx="7.5" cy="16.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="14.5" r=".5" fill="currentColor"/><path d="M3 3v18h18"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Phân Tán & Bong Bóng</span>
+            <span class="nav-desc">Scatter & Bubble 4D</span>
+          </div>
+        </button>
+
+        <!-- 5. Radar Chart -->
+        <button class="nav-item" data-chart="radar">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><polygon points="12 6 18 9.5 18 14.5 12 18 6 14.5 6 9.5 12 6"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Radar Mạng Nhện</span>
+            <span class="nav-desc">Spider Competency</span>
+          </div>
+        </button>
+
+        <!-- 6. Heatmap Matrix -->
+        <button class="nav-item" data-chart="heatmap">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Bản Đồ Nhiệt Ma Trận</span>
+            <span class="nav-desc">Weekly Activity Heatmap</span>
+          </div>
+        </button>
+
+        <!-- 7. Force-Directed Network Graph -->
+        <button class="nav-item" data-chart="network">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><line x1="8.5" y1="7.5" x2="15.5" y2="16.5"/><line x1="15.5" y1="7.5" x2="8.5" y2="16.5"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Mạng Lưới Kéo Thả</span>
+            <span class="nav-desc">Force Physics Network</span>
+          </div>
+          <span class="nav-badge pulse">Kéo Thả</span>
+        </button>
+
+        <!-- 8. Candlestick Financial Chart -->
+        <button class="nav-item" data-chart="candlestick">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="5" width="4" height="10" rx="1"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="10" y1="15" x2="10" y2="22"/><rect x="15" y="9" width="4" height="8" rx="1"/><line x1="17" y1="5" x2="17" y2="9"/><line x1="17" y1="17" x2="17" y2="20"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Nến Tài Chính K-Line</span>
+            <span class="nav-desc">Candlestick & Volume</span>
+          </div>
+        </button>
+
+        <!-- 9. Gauge & Speedometer -->
+        <button class="nav-item" data-chart="gauge">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-9.95 9h19.9A10 10 0 0 0 12 2Z"/><path d="M12 12v6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Đồng Hồ Đo Hiệu Năng</span>
+            <span class="nav-desc">Speedometer & KPIs</span>
+          </div>
+        </button>
+
+        <!-- 10. Funnel Conversion -->
+        <button class="nav-item" data-chart="funnel">
+          <div class="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </div>
+          <div class="nav-info">
+            <span class="nav-label">Phễu Chuyển Đổi</span>
+            <span class="nav-desc">Conversion Funnel</span>
+          </div>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-hint">
+          <div class="hint-icon">💡</div>
+          <div class="hint-body">
+            <strong>Mẹo tương tác:</strong>
+            <p>Cuộn chuột để zoom, giữ chuột quét vùng để phóng to, click điểm để xem chi tiết!</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chart Stage Card -->
+      <section class="chart-stage-card">
+        <!-- Stage Header & Dynamic Interaction Badges -->
+        <div class="stage-header">
+          <div class="stage-title-group">
+            <div class="title-with-tags">
+              <h1 id="current-chart-title" class="chart-title">Biểu đồ Cột & Xếp Chồng Đa Chi Nhánh</h1>
+              <div class="interaction-tags" id="interaction-tags">
+                <span class="tag">🔍 Zoom Con Lăn</span>
+                <span class="tag">🖱️ Quét Vùng Chọn</span>
+                <span class="tag">👆 Click Xem Chi Tiết</span>
+              </div>
+            </div>
+            <p id="current-chart-desc" class="chart-description">
+              So sánh đa chiều giữa Doanh số và Lợi nhuận của các chi nhánh. Người xem có thể chuyển đổi chế độ cột đứng / xếp chồng, sắp xếp theo giá trị, hoặc lọc từng nhóm danh mục.
+            </p>
+          </div>
+
+          <!-- Dynamic Interactive Chart Controls Toolbar -->
+          <div class="stage-toolbar" id="stage-toolbar">
+            <!-- Dynamic Buttons injected based on chart capabilities -->
+            <button id="ctrl-toggle-stack" class="tool-btn" title="Chuyển dạng Xếp chồng / Nhóm riêng biệt">
+              <span class="btn-icon">📚</span>
+              <span>Xếp chồng</span>
+            </button>
+            <button id="ctrl-toggle-smooth" class="tool-btn hidden" title="Làm cong mềm hoặc giữ đường thẳng góc">
+              <span class="btn-icon">〰️</span>
+              <span>Làm mềm</span>
+            </button>
+            <button id="ctrl-toggle-rose" class="tool-btn hidden" title="Chuyển sang dạng Biểu đồ Hoa hồng (Nightingale Rose)">
+              <span class="btn-icon">🌹</span>
+              <span>Dạng Rose</span>
+            </button>
+            <button id="ctrl-sort-asc" class="tool-btn" title="Sắp xếp tăng dần theo giá trị">
+              <span class="btn-icon">🔼</span>
+              <span>Tăng dần</span>
+            </button>
+            <button id="ctrl-sort-desc" class="tool-btn" title="Sắp xếp giảm dần theo giá trị">
+              <span class="btn-icon">🔽</span>
+              <span>Giảm dần</span>
+            </button>
+            <button id="ctrl-toggle-labels" class="tool-btn active" title="Bật / Tắt nhãn giá trị trực tiếp">
+              <span class="btn-icon">🏷️</span>
+              <span>Nhãn số</span>
+            </button>
+            <button id="ctrl-randomize" class="tool-btn" title="Sinh dữ liệu ngẫu nhiên với hiệu ứng chuyển động mượt">
+              <span class="btn-icon">🎲</span>
+              <span>Dữ liệu mới</span>
+            </button>
+            <button id="ctrl-reset-zoom" class="tool-btn" title="Đặt lại góc nhìn đồ thị">
+              <span class="btn-icon">↺</span>
+              <span>Đặt lại</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ECharts Canvas Container -->
+        <div class="chart-canvas-wrapper">
+          <div id="main-echart" class="echart-container"></div>
+          <!-- Canvas Loading Indicator -->
+          <div id="chart-loader" class="chart-loader hidden">
+            <div class="spinner"></div>
+            <span>Đang nạp đồ thị...</span>
+          </div>
+        </div>
+
+        <!-- Realtime / Interaction Status Bar -->
+        <div class="chart-status-bar">
+          <div class="status-left">
+            <span class="status-badge" id="chart-type-badge">Cột (Bar)</span>
+            <span class="status-info" id="status-hover-text">Di chuột lên đồ thị để xem phân tích số liệu</span>
+          </div>
+          <div class="status-right" id="status-stats-summary">
+            <div class="stat-pill"><span class="stat-label">Tổng:</span> <strong id="stat-total">--</strong></div>
+            <div class="stat-pill"><span class="stat-label">Trung bình:</span> <strong id="stat-avg">--</strong></div>
+            <div class="stat-pill"><span class="stat-label">Cao nhất:</span> <strong id="stat-max">--</strong></div>
+            <div class="stat-pill"><span class="stat-label">Thấp nhất:</span> <strong id="stat-min">--</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Interactive Playground & Tools Panel -->
+      <section class="playground-panel">
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="tab-editor">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Bộ Biên Tập Dữ Liệu Trực Tiếp (Live Grid)
+          </button>
+          <button class="tab-btn" data-tab="tab-inspector">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Kính Lúp Phân Tích Điểm Chạm (Inspector)
+          </button>
+          <button class="tab-btn" data-tab="tab-customizer">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Tùy Biến Trực Quan & Màu Sắc
+          </button>
+          <button class="tab-btn" data-tab="tab-import-export">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Nhập Dữ Liệu CSV / JSON
+          </button>
+        </div>
+
+        <div class="panel-body">
+          <!-- TAB 1: Live Data Table Editor -->
+          <div id="tab-editor" class="tab-content active">
+            <div class="editor-toolbar">
+              <div class="editor-tip">
+                <span class="bullet">●</span>
+                <span>Chỉnh sửa giá trị trực tiếp trên bảng. Đồ thị sẽ phản ánh ngay khi bấm <strong>"Áp dụng thay đổi"</strong>.</span>
+              </div>
+              <div class="editor-actions">
+                <button id="add-row-btn" class="secondary-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Thêm mục
+                </button>
+                <button id="reset-data-btn" class="secondary-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  Phục hồi gốc
+                </button>
+                <button id="apply-data-btn" class="primary-btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Áp dụng thay đổi
+                </button>
+              </div>
+            </div>
+
+            <!-- Spreadsheet-like Table -->
+            <div class="table-scroll-container">
+              <table id="data-editor-table" class="data-table">
+                <thead id="data-table-head">
+                  <!-- Injected via dataEditor.js -->
+                </thead>
+                <tbody id="data-table-body">
+                  <!-- Injected via dataEditor.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 2: Point Inspector -->
+          <div id="tab-inspector" class="tab-content">
+            <div class="inspector-container">
+              <div class="inspector-card" id="inspector-card">
+                <div class="inspector-empty-state" id="inspector-empty">
+                  <div class="empty-icon">👆</div>
+                  <h4>Chưa chọn điểm dữ liệu nào</h4>
+                  <p>Hãy click chuột vào bất kỳ cột, đường kẻ, điểm tròn, hoặc nút mạng nào trên đồ thị phía trên để xem phân tích chi tiết chuyên sâu tại đây.</p>
+                </div>
+                <div class="inspector-details hidden" id="inspector-details">
+                  <div class="inspector-header">
+                    <span class="inspector-badge" id="inspect-series-name">Doanh Thu</span>
+                    <h3 id="inspect-item-name">Chi Nhánh Hà Nội</h3>
+                  </div>
+                  <div class="inspector-grid">
+                    <div class="metric-box">
+                      <span class="metric-label">Giá trị ghi nhận</span>
+                      <span class="metric-val primary" id="inspect-value">1,450.00</span>
+                    </div>
+                    <div class="metric-box">
+                      <span class="metric-label">Tỷ trọng toàn tập dữ liệu</span>
+                      <span class="metric-val" id="inspect-share">28.4%</span>
+                    </div>
+                    <div class="metric-box">
+                      <span class="metric-label">So với mức trung bình</span>
+                      <span class="metric-val" id="inspect-delta">+15.2%</span>
+                    </div>
+                    <div class="metric-box">
+                      <span class="metric-label">Độ xếp hạng (Rank)</span>
+                      <span class="metric-val" id="inspect-rank">#1 / 6</span>
+                    </div>
+                  </div>
+                  <div class="inspector-notes" id="inspect-notes">
+                    <strong>Nhận xét xu hướng:</strong> Điểm dữ liệu thể hiện sự vượt trội, đóng góp tỷ trọng nòng cốt trong quý khảo sát.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Visual Customizer -->
+          <div id="tab-customizer" class="tab-content">
+            <div class="customizer-grid">
+              <div class="customizer-group">
+                <label class="control-label">Độ rộng cột / Điểm (Size/Width)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="param-bar-width" min="10" max="60" value="32">
+                  <span class="range-val" id="param-bar-width-val">32px</span>
+                </div>
+              </div>
+
+              <div class="customizer-group">
+                <label class="control-label">Độ mượt đường cong (Line Tension)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="param-line-tension" min="0" max="100" value="40">
+                  <span class="range-val" id="param-line-tension-val">0.4</span>
+                </div>
+              </div>
+
+              <div class="customizer-group">
+                <label class="control-label">Độ mờ vùng phủ (Area Opacity)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="param-area-opacity" min="0" max="100" value="35">
+                  <span class="range-val" id="param-area-opacity-val">35%</span>
+                </div>
+              </div>
+
+              <div class="customizer-group">
+                <label class="control-label">Thời gian hoạt ảnh chuyển động</label>
+                <div class="range-wrapper">
+                  <input type="range" id="param-anim-duration" min="200" max="2500" step="100" value="1000">
+                  <span class="range-val" id="param-anim-duration-val">1000ms</span>
+                </div>
+              </div>
+
+              <div class="customizer-group">
+                <label class="control-label">Bảng màu chủ đạo (Color Palette)</label>
+                <select id="param-palette-select" class="dropdown-select">
+                  <option value="modern">Hiện Đại (Electric Blue, Purple & Emerald)</option>
+                  <option value="warm">Nồng Ấm (Coral, Amber & Sunset Orange)</option>
+                  <option value="cool">Biển Sâu (Oceanic Cyan, Teal & Indigo)</option>
+                  <option value="neon">Neon Glow (Magenta, Lime & Electric Yellow)</option>
+                </select>
+              </div>
+
+              <div class="customizer-group">
+                <label class="control-label">Lưới tọa độ & Đường chuẩn (Grid Lines)</label>
+                <div class="checkbox-wrapper">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="param-toggle-grid" checked>
+                    <span>Hiển thị đường lưới kẻ ngang/dọc</span>
+                  </label>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="param-toggle-crosshair" checked>
+                    <span>Hiển thị tiêu điểm chữ thập (Crosshair)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: Import / Export -->
+          <div id="tab-import-export" class="tab-content">
+            <div class="import-export-grid">
+              <div class="io-card">
+                <h4>Nhập Dữ Liệu Tự Do (CSV hoặc JSON)</h4>
+                <p class="io-tip">Dán dữ liệu phân tách bằng dấu phẩy (CSV) hoặc mảng JSON để vẽ đồ thị của riêng bạn:</p>
+                <textarea id="import-data-text" class="code-textarea" rows="6" placeholder="ChiNhanh,DoanhThu,ChiPhi&#10;Hà Nội,1450,920&#10;TP.HCM,2100,1400&#10;Đà Nẵng,980,610&#10;Cần Thơ,620,410"></textarea>
+                <div class="io-actions">
+                  <button id="import-btn" class="primary-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Nạp dữ liệu lên đồ thị
+                  </button>
+                  <button id="load-sample-csv-btn" class="secondary-btn">Dán mẫu CSV</button>
+                </div>
+              </div>
+
+              <div class="io-card">
+                <h4>Mã Cấu Hình ECharts (Options JSON)</h4>
+                <p class="io-tip">Bạn có thể sao chép toàn bộ khối `option` này để nhúng trực tiếp vào dự án cá nhân:</p>
+                <textarea id="export-options-json" class="code-textarea" rows="6" readonly></textarea>
+                <div class="io-actions">
+                  <button id="copy-options-btn" class="secondary-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Sao chép cấu hình
+                  </button>
+                  <button id="download-csv-btn" class="secondary-btn">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+                    Tải file CSV
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- User Guide & Keyboard Shortcuts Modal -->
+  <div id="help-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">🧭</span>
+          <h3>Cẩm Nang Tương Tác Đồ Thị</h3>
+        </div>
+        <button id="close-help-modal" class="icon-btn close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="help-section">
+          <h4>🎯 Các Thao Tác Tương Tác Trực Tiếp</h4>
+          <ul class="help-list">
+            <li><strong>Con lăn chuột (Mousewheel):</strong> Phóng to / Thu nhỏ trục thời gian và không gian dữ liệu mượt mà.</li>
+            <li><strong>Kéo thanh DataZoom dưới đáy:</strong> Trượt để di chuyển khung thời gian khảo sát linh hoạt.</li>
+            <li><strong>Quét vùng chọn (Brush Select):</strong> Giữ chuột trái kéo một vùng chữ nhật để lọc và phân tích tập con dữ liệu.</li>
+            <li><strong>Bấm vào Chú giải (Legend):</strong> Ẩn hoặc hiện từng chuỗi dữ liệu (Series) tùy ý.</li>
+            <li><strong>Đồ thị Mạng lưới (Network):</strong> Dùng chuột kéo thả các nút mạng (Nodes) tự do theo vật lý động lực học.</li>
+            <li><strong>Chế độ Thời gian thực (Live Stream):</strong> Bật nút ở thanh tiêu đề để mô phỏng dữ liệu biến thiên trực tiếp theo giây.</li>
+          </ul>
+        </div>
+        <div class="help-section">
+          <h4>⌨️ Phím Tắt Tiện Ích</h4>
+          <div class="shortcuts-grid">
+            <div class="shortcut-item"><kbd>Space</kbd> <span>Bật / Tắt dòng dữ liệu Realtime</span></div>
+            <div class="shortcut-item"><kbd>R</kbd> <span>Tạo dữ liệu ngẫu nhiên mới</span></div>
+            <div class="shortcut-item"><kbd>T</kbd> <span>Đổi nhanh Giao diện Sáng / Tối</span></div>
+            <div class="shortcut-item"><kbd>F</kbd> <span>Bật chế độ Toàn màn hình</span></div>
+            <div class="shortcut-item"><kbd>Esc</kbd> <span>Đóng cửa sổ phụ trợ</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="got-it-btn" class="primary-btn">Tôi đã hiểu, trải nghiệm ngay!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic Modules -->
+  <script src="js/chartConfigs.js"></script>
+  <script src="js/chartManager.js"></script>
+  <script src="js/dataEditor.js"></script>
+  <script src="js/liveStream.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
